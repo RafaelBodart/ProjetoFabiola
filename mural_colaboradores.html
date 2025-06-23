@@ -1,0 +1,117 @@
+
+    <!DOCTYPE html>
+    <html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <title>Mural de Empregados</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+                background: #f4f4f4;
+            }
+            h1 {
+                text-align: center;
+            }
+            .mural {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 20px;
+            }
+            .colaborador {
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 0 10px #ccc;
+                padding: 10px;
+                width: 250px;
+            }
+            .colaborador img {
+                width: 100%;
+                border-radius: 8px;
+            }
+            .comentarios {
+                margin-top: 10px;
+            }
+            textarea {
+                width: 100%;
+                height: 60px;
+                margin-top: 5px;
+            }
+            button {
+                margin-top: 5px;
+                width: 100%;
+            }
+            .comentarios-lista {
+                margin-top: 10px;
+                font-size: 0.9em;
+                background: #f9f9f9;
+                padding: 5px;
+                border-radius: 5px;
+                max-height: 100px;
+                overflow-y: auto;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Mural de Empregados</h1>
+        <div class="mural" id="mural">
+            <!-- Empregados serão inseridos aqui -->
+        </div>
+
+        <script>
+            const Empregados = [
+                { id: 'colab1', nome: 'Rafael', foto: 'https://i.postimg.cc/pX1HywLm/Rafael-2.png' },
+                { id: 'colab2', nome: 'Filipe', foto: 'https://i.postimg.cc/90mhqV97/Fabiola.png' },
+                { id: 'colab3', nome: 'Fabíola', foto: 'https://i.postimg.cc/SNK4SSk0/Filipe.png' }
+            ];
+
+            function carregarComentarios(id) {
+                return JSON.parse(localStorage.getItem('comentarios_' + id)) || [];
+            }
+
+            function salvarComentario(id, texto) {
+                const comentarios = carregarComentarios(id);
+                comentarios.push(texto);
+                localStorage.setItem('comentarios_' + id, JSON.stringify(comentarios));
+            }
+
+            function renderizarMural() {
+                const mural = document.getElementById('mural');
+                Empregados.forEach(colab => {
+                    const div = document.createElement('div');
+                    div.className = 'colaborador';
+                    div.innerHTML = `
+                        <img src="${colab.foto}" alt="${colab.nome}">
+                        <h3>${colab.nome}</h3>
+                        <div class="comentarios">
+                            <textarea placeholder="Deixe um comentário..."></textarea>
+                            <button onclick="adicionarComentario('${colab.id}', this)">Comentar</button>
+                            <div class="comentarios-lista" id="lista-${colab.id}"></div>
+                        </div>
+                    `;
+                    mural.appendChild(div);
+                    atualizarComentarios(colab.id);
+                });
+            }
+
+            function adicionarComentario(id, botao) {
+                const textarea = botao.previousElementSibling;
+                const texto = textarea.value.trim();
+                if (texto) {
+                    salvarComentario(id, texto);
+                    textarea.value = '';
+                    atualizarComentarios(id);
+                }
+            }
+
+            function atualizarComentarios(id) {
+                const lista = document.getElementById('lista-' + id);
+                const comentarios = carregarComentarios(id);
+                lista.innerHTML = comentarios.map(c => `<div>• ${c}</div>`).join('');
+            }
+
+            renderizarMural();
+        </script>
+    </body>
+    </html>
